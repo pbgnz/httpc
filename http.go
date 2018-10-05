@@ -3,22 +3,50 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/url"
+	"regexp"
 )
 
 // RequestParameters needed
 type RequestParameters struct {
 	URL         string
-	HeaderLines string // Request Headers
+	HeaderLines HeaderLines
 }
 
 // Get request
 func Get(params RequestParameters) error {
-	host, path := parseURL(params.URL)
+	host, path, err := parseURL(params.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
 	requestLine := fmt.Sprintf("GET %s HTTP/1.0", path)
-	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, "Host: httpbin.org\r\n")
+	fmt.Println(requestLine)
+	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, params.HeaderLines)
 	return request(host, requestMessage)
+}
+
+// HeaderLines map
+type HeaderLines map[string]string
+
+// String implements the flag.Value interface
+func (h HeaderLines) String() string {
+	s := ""
+	for key, value := range h {
+		s += fmt.Sprintf("%s: %v\r\n", key, value)
+	}
+	return s
+}
+
+// Set implements the flag.Value interface
+func (h HeaderLines) Set(s string) error {
+	indexes := regexp.MustCompile(":").FindStringIndex(s)
+	if len(indexes) < 2 {
+		return fmt.Errorf("Header value must contain a key:value pair")
+	}
+	h[s[:indexes[0]]] = s[indexes[1]:]
+	return nil
 }
 
 func request(host string, requestMessage string) error {
@@ -47,10 +75,10 @@ func request(host string, requestMessage string) error {
 	return nil
 }
 
-func parseURL(u string) (host string, path string) {
+func parseURL(u string) (host string, path string, err error) {
 	URL, err := url.Parse(u)
 	if err != nil {
-		return "", ""
+		return "", "", fmt.Errorf("Error parsing the URL: %v", err)
 	}
-	return URL.Hostname(), URL.EscapedPath()
+	return URL.Hostname(), URL.EscapedPath(), nil
 }
