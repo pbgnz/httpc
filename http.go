@@ -16,6 +16,7 @@ type RequestParameters struct {
 	RequestHeader RequestHeader
 	Verbose       bool
 	Data          string
+	File          string
 }
 
 // RequestHeader map
