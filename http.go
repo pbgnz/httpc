@@ -7,12 +7,14 @@ import (
 	"net"
 	"net/url"
 	"regexp"
+	"strings"
 )
 
 // RequestParameters needed
 type RequestParameters struct {
 	URL         string
 	HeaderLines HeaderLines
+	Verbose     bool
 }
 
 // Get request
@@ -22,9 +24,8 @@ func Get(params RequestParameters) error {
 		log.Fatal(err)
 	}
 	requestLine := fmt.Sprintf("GET %s HTTP/1.0", path)
-	fmt.Println(requestLine)
 	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, params.HeaderLines)
-	return request(host, requestMessage)
+	return request(host, requestMessage, params)
 }
 
 // HeaderLines map
@@ -49,7 +50,7 @@ func (h HeaderLines) Set(s string) error {
 	return nil
 }
 
-func request(host string, requestMessage string) error {
+func request(host string, requestMessage string, params RequestParameters) error {
 
 	// establish a TCP connection to a particular port on a server (port 80)
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, 80))
@@ -70,7 +71,13 @@ func request(host string, requestMessage string) error {
 		return fmt.Errorf("Error getting response: %v", err)
 	}
 
-	fmt.Println(string(res))
+	if params.Verbose {
+		fmt.Println(string(res))
+	} else {
+		// split the header and body of the response message
+		resMsg := strings.Split(string(res), "\r\n\r\n")
+		fmt.Println(resMsg[1])
+	}
 
 	return nil
 }
