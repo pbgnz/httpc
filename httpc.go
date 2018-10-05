@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 )
 
@@ -17,13 +16,11 @@ func main() {
 	}
 
 	params := RequestParameters{
-		URL:     URL,
-		Headers: *h,
+		URL:         URL,
+		HeaderLines: *h,
 	}
 
-	fmt.Println(params)
-	// httpc get [-v] [-h key:value] URL
-	if err := Get(); err != nil {
+	if err := Get(params); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -4,17 +4,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/url"
 )
 
 // RequestParameters needed
 type RequestParameters struct {
-	URL     string
-	Headers string // Request Headers
+	URL         string
+	HeaderLines string // Request Headers
 }
 
 // Get request
-func Get() error {
-	return request("httpbin.org", "GET /status/418 HTTP/1.0\r\nHost: httpbin.org\r\n\r\n")
+func Get(params RequestParameters) error {
+	host, path := parseURL(params.URL)
+	requestLine := fmt.Sprintf("GET %s HTTP/1.0", path)
+	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, "Host: httpbin.org\r\n")
+	return request(host, requestMessage)
 }
 
 func request(host string, requestMessage string) error {
@@ -33,12 +37,20 @@ func request(host string, requestMessage string) error {
 	}
 
 	// receive response from the server
-	response, err := ioutil.ReadAll(conn)
+	res, err := ioutil.ReadAll(conn)
 	if err != nil {
 		return fmt.Errorf("Error getting response: %v", err)
 	}
 
-	fmt.Println(string(response))
+	fmt.Println(string(res))
 
 	return nil
+}
+
+func parseURL(u string) (host string, path string) {
+	URL, err := url.Parse(u)
+	if err != nil {
+		return "", ""
+	}
+	return URL.Hostname(), URL.EscapedPath()
 }
