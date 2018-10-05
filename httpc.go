@@ -28,12 +28,22 @@ func main() {
 	}
 
 	if *d == "" {
+		// TODO: handle error
 		if data, err := ioutil.ReadFile(*f); err == nil {
 			params.Data = string(data)
 		}
 	}
 
-	if err := Post(params); err != nil {
-		log.Fatal(err)
+	switch method := flag.Arg(0); method {
+	case "get":
+		if err := Get(params); err != nil {
+			log.Fatal(err)
+		}
+	case "post":
+		if err := Post(params); err != nil {
+			log.Fatal(err)
+		}
+	default:
+		log.Fatal("Method is required")
 	}
 }
