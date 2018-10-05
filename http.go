@@ -27,6 +27,7 @@ type RequestHeader map[string]string
 func Get(params RequestParameters) error {
 	host, path := parseURL(params.URL)
 	requestLine := fmt.Sprintf("GET %s HTTP/1.0", path)
+	params.RequestHeader["Host"] = host
 	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, params.RequestHeader)
 	return request(host, requestMessage, params)
 }
@@ -65,14 +66,14 @@ func request(host string, requestMessage string, params RequestParameters) error
 	if params.Verbose {
 		fmt.Println(string(res))
 	} else {
-		if params.Output != "" {
-			ioutil.WriteFile(params.Output, res, 0666)
-		} else {
-			// split the header and body of the response message
-			resMsg := strings.Split(string(res), "\r\n\r\n")
-			fmt.Println(resMsg[1])
-		}
+		// split the header and body of the response message
+		resMsg := strings.Split(string(res), "\r\n\r\n")
+		fmt.Println(resMsg[1])
+	}
 
+	if params.Output != "" {
+		fmt.Printf("Outputing HTTP response to: %s", params.Output)
+		ioutil.WriteFile(params.Output, res, 0666)
 	}
 
 	return nil
@@ -83,7 +84,11 @@ func parseURL(u string) (host string, path string) {
 	if err != nil {
 		return "", ""
 	}
-	return URL.Hostname(), URL.EscapedPath()
+	path = URL.EscapedPath()
+	if URL.RawQuery != "" {
+		path = fmt.Sprintf("%s?%s", path, URL.RawQuery)
+	}
+	return URL.Hostname(), path
 }
 
 // String implements the flag.Value interface

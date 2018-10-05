@@ -13,7 +13,7 @@ httpc help
 
 httpc is a curl-like application but supports HTTP protocol only.
 Usage:
-    httpc command [arguments]
+    httpc [arguments] command
 The commands are:
     get     executes a HTTP GET request and prints the response.
     post    executes a HTTP POST request and prints the response.
@@ -27,7 +27,7 @@ Use "httpc help [command]" for more information about a command.
 ``` bash
 httpc help get
 
-usage: httpc get [-v] [-h key:value] URL
+usage: httpc [-v] [-h key:value] get URL
 
 Get executes a HTTP GET request for a given URL.
 
@@ -40,7 +40,7 @@ Get executes a HTTP GET request for a given URL.
 ``` bash
 httpc help post
 
-usage: httpc post [-v] [-h key:value] [-d inline-data] [-f file] URL
+usage: httpc [-v] [-h key:value] [-d inline-data] [-f file] [-o output] post URL
 
 Post executes a HTTP POST request for a given URL with inline data or from file.
 
@@ -48,8 +48,8 @@ Post executes a HTTP POST request for a given URL with inline data or from file.
 and headers.
     -h key:value   Associates headers to HTTP Request with the format 'key:value'.
     -d string      Associates an inline data to the body HTTP POST request.
-    -f file        Associates the content of a file to the body HTTP POST 
-request.
+    -f file        Associates the content of a file to the body HTTP POST request.
+    -o output       Associates the content of a file to the body HTTP POST request.
 
 Either [-d] or [-f] can be used but not both.
 ```
@@ -77,7 +77,7 @@ Output:
 
 ### Get with query parameters
 
-httpc get -v 'http://httpbin.org/get?course=networking&assignment=1'
+httpc -v get 'http://httpbin.org/get?course=networking&assignment=1'
 
 Output:
 ``` bash
@@ -104,8 +104,7 @@ Access-Control-Allow-Credentials: true
 
 ### Post with inline data
 
-httpc post -h Content-Type:application/json --d'{"Assignment": 1}' 
-http://httpbin.org/post
+httpc -h Content-Type:application/json --d '{"Assignment": 1}' post http://httpbin.org/post
 
 Output:
 ``` bash
@@ -125,4 +124,36 @@ Output:
     },
     "url": "http://httpbin.org/post"
 }
+```
+
+### Post content of a file and receive the HTTP response in another file
+
+httpc -f input.txt -o output.txt post 'http://httpbin.org/post'
+
+Where input.txt has: 
+
+```txt
+{"Assignment": 1}
+```
+
+Output:
+```bash
+{
+  "args": {},
+  "data": "{\"Assignment\": 1}",
+  "files": {},
+  "form": {},
+  "headers": {
+    "Connection": "close",
+    "Content-Length": "17",
+    "Host": "httpbin.org"
+  },
+  "json": {
+    "Assignment": 1
+  },
+  "origin": "135.19.219.135",
+  "url": "http://httpbin.org/post"
+}
+
+Outputing HTTP response to: output.txt
 ```
