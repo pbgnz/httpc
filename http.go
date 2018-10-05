@@ -17,6 +17,7 @@ type RequestParameters struct {
 	Verbose       bool
 	Data          string
 	File          string
+	Output        string
 }
 
 // RequestHeader map
@@ -64,9 +65,14 @@ func request(host string, requestMessage string, params RequestParameters) error
 	if params.Verbose {
 		fmt.Println(string(res))
 	} else {
-		// split the header and body of the response message
-		resMsg := strings.Split(string(res), "\r\n\r\n")
-		fmt.Println(resMsg[1])
+		if params.Output != "" {
+			ioutil.WriteFile(params.Output, res, 0666)
+		} else {
+			// split the header and body of the response message
+			resMsg := strings.Split(string(res), "\r\n\r\n")
+			fmt.Println(resMsg[1])
+		}
+
 	}
 
 	return nil
