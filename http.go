@@ -3,51 +3,40 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 // RequestParameters needed
 type RequestParameters struct {
-	URL         string
-	HeaderLines HeaderLines
-	Verbose     bool
+	URL           string
+	RequestHeader RequestHeader
+	Verbose       bool
+	Data          string
 }
+
+// RequestHeader map
+type RequestHeader map[string]string
 
 // Get request
 func Get(params RequestParameters) error {
-	host, path, err := parseURL(params.URL)
-	if err != nil {
-		log.Fatal(err)
-	}
+	host, path := parseURL(params.URL)
 	requestLine := fmt.Sprintf("GET %s HTTP/1.0", path)
-	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, params.HeaderLines)
+	requestMessage := fmt.Sprintf("%s\r\n%s\r\n", requestLine, params.RequestHeader)
 	return request(host, requestMessage, params)
 }
 
-// HeaderLines map
-type HeaderLines map[string]string
-
-// String implements the flag.Value interface
-func (h HeaderLines) String() string {
-	s := ""
-	for key, value := range h {
-		s += fmt.Sprintf("%s: %v\r\n", key, value)
-	}
-	return s
-}
-
-// Set implements the flag.Value interface
-func (h HeaderLines) Set(s string) error {
-	indexes := regexp.MustCompile(":").FindStringIndex(s)
-	if len(indexes) < 2 {
-		return fmt.Errorf("Header value must contain a key:value pair")
-	}
-	h[s[:indexes[0]]] = s[indexes[1]:]
-	return nil
+// Post request
+func Post(params RequestParameters) error {
+	host, path := parseURL(params.URL)
+	requestLine := fmt.Sprintf("POST %s HTTP/1.0", path)
+	params.RequestHeader["Host"] = host
+	params.RequestHeader["Content-Length"] = strconv.Itoa(len([]byte(params.Data)))
+	requestMessage := fmt.Sprintf("%s\r\n%s\r\n%s", requestLine, params.RequestHeader, params.Data)
+	return request(host, requestMessage, params)
 }
 
 func request(host string, requestMessage string, params RequestParameters) error {
@@ -82,10 +71,29 @@ func request(host string, requestMessage string, params RequestParameters) error
 	return nil
 }
 
-func parseURL(u string) (host string, path string, err error) {
+func parseURL(u string) (host string, path string) {
 	URL, err := url.Parse(u)
 	if err != nil {
-		return "", "", fmt.Errorf("Error parsing the URL: %v", err)
+		return "", ""
 	}
-	return URL.Hostname(), URL.EscapedPath(), nil
+	return URL.Hostname(), URL.EscapedPath()
+}
+
+// String implements the flag.Value interface
+func (rh RequestHeader) String() string {
+	s := ""
+	for k, v := range rh {
+		s += fmt.Sprintf("%s: %v\r\n", k, v)
+	}
+	return s
+}
+
+// Set implements the flag.Value interface
+func (rh RequestHeader) Set(s string) error {
+	indexes := regexp.MustCompile(":").FindStringIndex(s)
+	if len(indexes) < 2 {
+		return fmt.Errorf("Header value must contain a key:value pair")
+	}
+	rh[s[:indexes[0]]] = s[indexes[1]:]
+	return nil
 }
