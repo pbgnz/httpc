@@ -18,6 +18,7 @@ type RequestParameters struct {
 	Data          string
 	File          string
 	Output        string
+	Port          int
 }
 
 // RequestHeader map
@@ -45,7 +46,7 @@ func Post(params RequestParameters) error {
 func request(host string, requestMessage string, params RequestParameters) error {
 
 	// establish a TCP connection to a particular port on a server (port 80)
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, 80))
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, params.Port))
 	if err != nil {
 		return fmt.Errorf("Error establishing TCP connection to \"%s:%d\" : %v", host, 80, err)
 	}

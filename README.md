@@ -27,12 +27,13 @@ Use "httpc help [command]" for more information about a command.
 ``` bash
 httpc help get
 
-usage: httpc [-v] [-h key:value] get URL
+usage: httpc [-v] [-p port] [-h key:value] get URL
 
 Get executes a HTTP GET request for a given URL.
 
     -v             Prints the detail of the response such as protocol,status,and headers.
     -h key:value   Associates headers to HTTP Request with the format 'key:value'.
+    -p             Specifies the port of the server
 ```
 
 ### Post Usage
@@ -40,7 +41,7 @@ Get executes a HTTP GET request for a given URL.
 ``` bash
 httpc help post
 
-usage: httpc [-v] [-h key:value] [-d inline-data] [-f file] [-o output] post URL
+usage: httpc [-v] [-p port] [-h key:value] [-d inline-data] [-f file] [-o output] post URL
 
 Post executes a HTTP POST request for a given URL with inline data or from file.
 
@@ -49,7 +50,8 @@ and headers.
     -h key:value   Associates headers to HTTP Request with the format 'key:value'.
     -d string      Associates an inline data to the body HTTP POST request.
     -f file        Associates the content of a file to the body HTTP POST request.
-    -o output       Associates the content of a file to the body HTTP POST request.
+    -o output      Associates the content of a file to the body HTTP POST request.
+    -p port        Specifies the port of the server
 
 Either [-d] or [-f] can be used but not both.
 ```

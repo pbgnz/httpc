@@ -13,6 +13,7 @@ func main() {
 	d := flag.String("d", "", "Associates an inline data to the body HTTP POST request.")
 	f := flag.String("f", "", "Associates the content of a file to the body HTTP POST.")
 	o := flag.String("o", "", "Write the body of the response to the specified file instead of the console.")
+	p := flag.Int("p", 80, "Specifies the port number of the server.")
 	flag.Parse()
 
 	method := flag.Arg(0)
@@ -44,6 +45,7 @@ func main() {
 		Data:          *d,
 		File:          *f,
 		Output:        *o,
+		Port:          *p,
 	}
 
 	if *f != "" {
