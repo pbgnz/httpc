@@ -4,6 +4,11 @@ httpc is a curl - like application but supports HTTP protocol only
 ## Requirements
 1. Go 1.7 or later
 
+## Installation
+``` bash
+go get -u github.com/pbgnz/httpc
+```
+
 ## Detailed Usage
 
 ### General
