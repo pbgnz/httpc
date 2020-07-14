@@ -65,7 +65,9 @@ Either [-d] or [-f] can be used but not both.
 
 ### Get with query parameters
 
+``` bash
 httpc get 'http://httpbin.org/get?course=networking&assignment=1'
+```
 
 Output:
 ``` bash
@@ -84,7 +86,9 @@ Output:
 
 ### Get with query parameters
 
+``` bash
 httpc -v get 'http://httpbin.org/get?course=networking&assignment=1'
+```
 
 Output:
 ``` bash
@@ -111,7 +115,9 @@ Access-Control-Allow-Credentials: true
 
 ### Post with inline data
 
+``` bash
 httpc -h Content-Type:application/json --d '{"Assignment": 1}' post http://httpbin.org/post
+```
 
 Output:
 ``` bash
@@ -135,7 +141,9 @@ Output:
 
 ### Post content of a file and receive the HTTP response in another file
 
+``` bash
 httpc -f input.txt -o output.txt post 'http://httpbin.org/post'
+```
 
 Where input.txt has: 
 
